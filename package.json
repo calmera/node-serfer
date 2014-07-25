@@ -1,0 +1,31 @@
+{
+  "name": "serfer",
+  "version": "0.1.0",
+  "description": "A exact copy of the serf client for nodejs.",
+  "dependencies": {
+    "bops": "^0.1.1",
+    "lodash": "~2.4.1",
+    "msgpack-js-v5-ng": "~0.3.0-v5",
+    "q": "^1.0.1",
+    "through": "^2.3.4",
+    "underscore": "^1.6.0",
+    "winston": "^0.7.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/calmera/serfer"
+  },
+  "keywords": [
+    "serf",
+    "serfer",
+    "rpc",
+    "api",
+    "serfdom"
+  ],
+  "author": "Daan Gerits <daan.gerits@bigboards.io>",
+  "license": "Apache Commons"
+}
