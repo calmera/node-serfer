@@ -38,7 +38,10 @@ SerfRPC.prototype.stream = function(command, body) {
         "Seq": this.sequence++
     };
 
-    return this._stream.stream(header, body);
+    log.log('info', '#' + header.Seq + ': streaming ' + JSON.stringify(header));
+
+    return this._stream
+        .stream(header, body);
 };
 
 SerfRPC.prototype.handshake = function() {

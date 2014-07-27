@@ -98,26 +98,24 @@ SerfStream.prototype.stream = function(header, body) {
         log.log('info', 'handling the response for #' + header.Seq);
 
         if(_.has(response, "Error") && response.Error != "") {
-            log.log('info', 'rejecting the response since it contains an error');
+            log.log('info', '#' + header.Seq + ': rejecting the response since it contains an error');
             return defer.reject(response.Error);
         }
 
-        log.log('info', 'streaming the response as a progression update');
+        log.log('info', '#' + header.Seq + ': streaming the response as a progression update');
         return defer.notify(response);
     };
 
     // -- register a listener to handle the response
-    self.emitter.once(header.Seq, handler);
+    self.emitter.on(header.Seq, handler);
 
     // -- send the header and body
     self.client.write(self.transcoder.encode(header));
     if (body) self.client.write(self.transcoder.encode(body));
 
-    return defer.promise.then(function(data) {
-        log.log('info', 'promise resolved!');
+    log.log('info', '#' + header.Seq + ': Started a stream for ' + JSON.stringify(body));
 
-        return data;
-    });
+    return defer.promise;
 };
 
 module.exports = SerfStream;

@@ -167,41 +167,39 @@ RPCClient.prototype.monitor = function(level) {
         });
 };
 
-RPCClient.prototype.stream = function(filter) {
+RPCClient.prototype.stream = function(type) {
     return this.rpc
         .stream(Constants.commands.streamCommand, {
-            Type: filter
+            Type: type
         });
 };
 
 RPCClient.prototype.query = function(params) {
-    return this.rpc
-        .stream(Constants.commands.queryCommand, {
-            FilterNodes: params.FilterNodes,
-            FilterTags:  params.FilterTags,
-            RequestAck:  params.RequestAck,
-            Timeout:     params.Timeout,
-            Name:        params.Name,
-            Payload:     params.Payload
-        })
+    var defer = Q.defer();
+
+    var buffer = [];
+
+    this.rpc
+        .stream(Constants.commands.queryCommand, params)
         .progress(function(data) {
             switch (data['Type']) {
                 case Constants.queryRecord.queryRecordAck:
-                    return data;
-
-                case Constants.queryRecord.queryRecordResponse:
-                    return {
-                        from: data['From'],
-                        payload: data['Payload']
-                    };
-
-                case Constants.queryRecord.queryRecordDone:
                     return null;
 
-                default:
-                    throw new Error("[ERR] Unrecognized query record type: " + data['Type']);
+                case Constants.queryRecord.queryRecordResponse:
+                    data.Payload = new Buffer(data.Payload).toString('ascii');
+                    buffer.push(data);
+                    return defer.progress(data);
+
+                case Constants.queryRecord.queryRecordDone:
+                    return defer.resolve(buffer);
+
+//                default:
+//                    throw new Error("[ERR] Unrecognized query record type: " + data['Type']);
             }
         });
+
+    return defer.promise;
 
 };
 
