@@ -41,12 +41,6 @@ SerfStream.prototype.connect = function() {
                         i++;
                     }
 
-                    if (result.data) {
-                        log.log('info', '#' + result.header.Seq + ': Data response found : ' + JSON.stringify(result.data));
-                    } else {
-                        log.log('info', '#' + result.header.Seq + ': ACK response found');
-                    }
-
                     self.emitter.emit(result.header.Seq, result);
                 }
             } catch (error) {
@@ -69,14 +63,9 @@ SerfStream.prototype.send = function(header, body) {
 
     var self = this;
     var handler = function(response) {
-//        log.log('info', 'handling the response for #' + response.header.Seq);
-
         if(_.has(response.header, "Error") && response.header.Error != "") {
-            log.log('info', '#' + response.header.Seq + ': rejecting the response');
             return defer.reject(response.header.Error);
         }
-
-        log.log('info', '#' + response.header.Seq + ': resolving the response');
         return defer.resolve(response.data);
     };
 
@@ -95,14 +84,10 @@ SerfStream.prototype.stream = function(header, body) {
 
     var self = this;
     var handler = function(response) {
-        log.log('info', 'handling the response for #' + header.Seq);
-
         if(_.has(response, "Error") && response.Error != "") {
-            log.log('info', '#' + header.Seq + ': rejecting the response since it contains an error');
             return defer.reject(response.Error);
         }
 
-        log.log('info', '#' + header.Seq + ': streaming the response as a progression update');
         return defer.notify(response);
     };
 
@@ -112,8 +97,6 @@ SerfStream.prototype.stream = function(header, body) {
     // -- send the header and body
     self.client.write(self.transcoder.encode(header));
     if (body) self.client.write(self.transcoder.encode(body));
-
-    log.log('info', '#' + header.Seq + ': Started a stream for ' + JSON.stringify(body));
 
     return defer.promise;
 };

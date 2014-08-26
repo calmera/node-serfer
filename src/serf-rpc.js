@@ -1,7 +1,5 @@
 var SerfStream = require('./serf-stream.js'),
-    log = require('winston'),
-    Constants = require('./constants.js'),
-    Q = require('q');
+    Constants = require('./constants.js');
 
 function SerfRPC() {
     this.sequence = 0;
@@ -22,12 +20,9 @@ SerfRPC.prototype.send = function(command, body) {
         "Seq": this.sequence++
     };
 
-    log.log('info', '#' + header.Seq + ': sent ' + JSON.stringify(header));
-
     return this._stream
         .send(header, body)
         .then(function(data) {
-            log.log('info', '#' + header.Seq + ': promise resolved in rpc: ' + JSON.stringify(data));
             return data;
         });
 };
@@ -37,8 +32,6 @@ SerfRPC.prototype.stream = function(command, body) {
         "Command": command,
         "Seq": this.sequence++
     };
-
-    log.log('info', '#' + header.Seq + ': streaming ' + JSON.stringify(header));
 
     return this._stream
         .stream(header, body);
