@@ -13,18 +13,28 @@ Transcoder.prototype.decode = function(data){
         data = data.slice(1, data.length);
         cache = Buffer.concat([cache, head]);
 
-        try { decoded = msgpack.decode(cache); } catch(err) {}
+        try {
+            try {
+                decoded = msgpack.decode(cache);
+            } catch (error) {
+                if (error.name == 'RangeError') continue;
+            }
+            if (! decoded) continue;
 
-        if (decoded.trailing == 0) {
-            values.push(decoded.value);
-            cache = new Buffer(0);
+            if (decoded.trailing == 0) {
+                values.push(decoded.value);
+                cache = new Buffer(0);
+            }
+        } catch(err) {
+            console.log('Error decoding msgPack object: ', err.message);
+            console.log(err.stack);
         }
     }
 
     return {
         seq: (values.length == 1) ? decoded.value.Seq : _.first(values).Seq,
         values: values
-    }
+    };
 };
 
 Transcoder.prototype.encode = function(data){

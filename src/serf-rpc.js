@@ -11,7 +11,10 @@ SerfRPC.prototype.connect = function(config) {
 
     return this._stream.connect()
         .then(this.handshake())
-        .then(this.auth(config.authKey));
+        .then(this.auth(config.authKey))
+        .then(function() {
+            console.log('Connected!');
+        });
 };
 
 SerfRPC.prototype.send = function(command, body) {
@@ -44,7 +47,7 @@ SerfRPC.prototype.handshake = function() {
 };
 
 SerfRPC.prototype.auth = function(authKey) {
-    if (! authKey) return null;
+    if (! authKey) return;
 
     return this.send(Constants.commands.authCommand, {
         AuthKey: authKey

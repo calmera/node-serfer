@@ -6,7 +6,9 @@ var Serfer = require('../src'),
 // -- start an agent locally
 var masterAgent = spawn('serf', [
     'agent',
-    '-node', 'masterAgent'
+    '-node', 'masterAgent',
+    '-rpc-addr', 'localhost:7350',
+    '-bind', '0.0.0.0:7950'
 ]);
 
 masterAgent.stdout.on('data', function (data) {
@@ -21,26 +23,27 @@ masterAgent.on('close', function (code) {
     console.log('[MASTER] exited with code ' + code);
 });
 
-var masterClient = new Serfer({
-    host: "localhost",
-    port: 7373
-});
+setTimeout(function() {
+    var masterClient = new Serfer();
 
-masterClient
-    .connect()
-    .then(function() {
-        log.log('info', 'up and running');
-    });
+    masterClient
+        .connect({
+            host: "localhost",
+            port: 7350
+        })
+        .then(function() {
+            masterClient
+                .members()
+                .then(function(data) {
+                    log.log('info', 'Members: ' + JSON.stringify(data));
+                });
 
-masterClient
-    .members()
-    .then(function(data) {
-        log.log('info', 'Members: ' + JSON.stringify(data));
-    });
+            var handler = masterClient.stream('*');
 
-masterClient
-    .stream('*')
-    .progress(function(data) {
-        if (!data || !data.data || !data.data.Payload) return;
-        log.log('info', '=> LOAD: ' + data.data.Payload);
-    });
+            handler.on('data', function(data) {
+                if (!data || !data.data || !data.data.Payload) return;
+                log.log('info', '=> LOAD: ' + data.data.Payload);
+            });
+        });
+
+}, 2000);
