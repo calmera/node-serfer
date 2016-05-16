@@ -1,6 +1,6 @@
 {
   "name": "serfer",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "A exact copy of the serf client for nodejs.",
   "main": "./src/index.js",
   "dependencies": {
